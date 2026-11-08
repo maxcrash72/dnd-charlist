@@ -24,6 +24,6 @@ export async function initTheme() {
     applyTheme(await OBR.theme.getTheme());
     OBR.theme.onChange(applyTheme);
   } catch (e) {
-    console.warn("[dnd-sheet] не удалось получить тему", e);
+    console.warn("[dnd-charlist] не удалось получить тему", e);
   }
 }

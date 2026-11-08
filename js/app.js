@@ -225,8 +225,8 @@ function refresh() {
   const toggle3d = $("#toggle-3d");
   toggle3d.disabled = !dice3dAvailable;
   toggle3d.title = dice3dAvailable
-    ? "3D-кубики через расширение Dice (dnd-sheet)"
-    : "3D-кубики: установите в комнату расширение Dice (dnd-sheet)";
+    ? "3D-кубики через расширение Dice (dnd-charlist)"
+    : "3D-кубики: установите в комнату расширение Dice (dnd-charlist)";
   if (!dice3dAvailable) toggle3d.setAttribute("aria-pressed", "false");
   $("#dice-style-field").hidden = !dice3dAvailable;
   $("#dice-style").value = settings.diceStyle;
@@ -296,7 +296,7 @@ async function tryRoll3d(label, request) {
   try {
     return await roll3d(request, { hidden: settings.hidden, style: settings.diceStyle });
   } catch (e) {
-    console.warn("[dnd-sheet] 3D-бросок не удался", e);
+    console.warn("[dnd-charlist] 3D-бросок не удался", e);
     setStatus(`3D-кубики: ${e.message}. Бросок сделан без них`, true);
     return null;
   }
@@ -308,7 +308,7 @@ async function doRoll(payload) {
   try {
     await sendRoll(roll, { showOnMap: settings.showOnMap });
   } catch (e) {
-    console.error("[dnd-sheet] бросок не отправлен", e);
+    console.error("[dnd-charlist] бросок не отправлен", e);
     setStatus("Бросок не отправлен другим игрокам", true);
   }
 }
@@ -638,9 +638,9 @@ function bindEvents() {
 
   // Журнал пишет фоновая страница (другой документ) — узнаём об изменениях через событие storage.
   window.addEventListener("storage", (e) => {
-    if (e.key?.startsWith("dnd-sheet:log:")) renderLog();
+    if (e.key?.startsWith("dnd-charlist:log:")) renderLog();
   });
-  window.addEventListener("dnd-sheet:log", renderLog);
+  window.addEventListener("dnd-charlist:log", renderLog);
 }
 
 /** Ищет расширение с 3D-кубиками; пока не найдено — повторяет время от времени. */
@@ -681,7 +681,7 @@ async function start() {
   const { character: myCharacter, inRoom } = await loadSheet(me.id);
   await openSheet(me.id);
   loaded = true;
-  // Лист из прошлой версии (браузер или метаданные игрока) переносим в комнату
+  // Лист есть только в браузере (например, раньше в комнате не хватило места) — записываем в комнату
   if (OBR.isAvailable && !inRoom && JSON.stringify(myCharacter) !== JSON.stringify(createCharacter())) {
     uploadSheet(me.id, myCharacter, me.name).then((r) => r.ok || setStatus(r.error, true));
   }
@@ -698,6 +698,6 @@ async function start() {
 }
 
 start().catch((e) => {
-  console.error("[dnd-sheet] ошибка запуска", e);
+  console.error("[dnd-charlist] ошибка запуска", e);
   setStatus("Ошибка запуска — откройте консоль браузера", true);
 });

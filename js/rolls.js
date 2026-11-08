@@ -55,7 +55,7 @@ export async function sendRoll(roll, { showOnMap }) {
     try {
       message.anchor = await findAnchor();
     } catch (e) {
-      console.warn("[dnd-sheet] не удалось определить точку на карте", e);
+      console.warn("[dnd-charlist] не удалось определить точку на карте", e);
     }
   }
   await OBR.broadcast.sendMessage(ROLL_CHANNEL, message, { destination: "ALL" });
@@ -70,7 +70,7 @@ export async function receiveRoll(roll, { myId, myRole }) {
   const variant = roll.crit ? "SUCCESS" : roll.fumble ? "ERROR" : "DEFAULT";
   OBR.notification.show(`${text}  ${describeDetail(roll)}`, variant).catch(() => {});
   if (roll.anchor && !roll.hidden) {
-    await showLabel(roll, text).catch((e) => console.warn("[dnd-sheet] не удалось показать надпись", e));
+    await showLabel(roll, text).catch((e) => console.warn("[dnd-charlist] не удалось показать надпись", e));
   }
   return true;
 }
@@ -106,5 +106,5 @@ export function appendToLog(roll) {
   if (log.some((r) => r.id === roll.id)) return;
   log.unshift(roll);
   saveLog(log.slice(0, LOG_LIMIT));
-  window.dispatchEvent(new CustomEvent("dnd-sheet:log"));
+  window.dispatchEvent(new CustomEvent("dnd-charlist:log"));
 }

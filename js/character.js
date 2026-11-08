@@ -81,7 +81,7 @@ export function normalizeCharacter(raw) {
 }
 
 /**
- * Самый старый формат v1.x (ключ "ru_dnd_sheet/v2" в метаданных игрока):
+ * Самый старый формат v1.x:
  * { name, str: "10", dex: "14", ... } — только имя и значения характеристик.
  */
 function migrate(raw) {

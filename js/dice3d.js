@@ -1,4 +1,4 @@
-// Связь с расширением «Dice (dnd-sheet)» (https://github.com/maxcrash72/dnd-dice):
+// Связь с расширением «Dice (dnd-charlist)» (https://github.com/maxcrash72/dnd-dice):
 // настоящие 3D-кубики с физикой. Расширения общаются через BroadcastChannel —
 // это работает, потому что оба лежат на одном адресе maxcrash72.github.io.
 
@@ -51,7 +51,7 @@ function request(message, timeoutMs) {
   });
 }
 
-/** true, если расширение Dice (dnd-sheet) установлено в комнате и отвечает. */
+/** true, если расширение Dice (dnd-charlist) установлено в комнате и отвечает. */
 export async function detectDice3d() {
   try {
     await request({ type: "ping" }, PING_TIMEOUT_MS);

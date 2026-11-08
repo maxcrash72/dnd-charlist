@@ -8,8 +8,6 @@ import { normalizeCharacter, createCharacter } from "./character.js";
 import { encodeSheet, decodeSheet, metadataSize } from "./codec.js";
 
 const SHEET_PREFIX = `${PLUGIN_ID}/sheet/`;
-// Ключи версий 1.x–2.x в метаданных игрока (они не сохраняются между сессиями)
-const OLD_PLAYER_KEYS = [`${PLUGIN_ID}/character`, "ru_dnd_sheet/v2"];
 /** Лимит Owlbear на все метаданные комнаты (общий для всех расширений) */
 export const ROOM_LIMIT = 16 * 1024;
 const ROOM_SAFE_LIMIT = ROOM_LIMIT - 512;
@@ -21,11 +19,11 @@ function roomId() {
 }
 
 function roomKey(kind) {
-  return `dnd-sheet:${kind}:${roomId()}`;
+  return `dnd-charlist:${kind}:${roomId()}`;
 }
 
 function localSheetKey(playerId) {
-  return `dnd-sheet:sheet:${roomId()}:${playerId}`;
+  return `dnd-charlist:sheet:${roomId()}:${playerId}`;
 }
 
 export function sheetKey(playerId) {
@@ -75,7 +73,7 @@ export function roomUsage(metadata) {
 }
 
 /**
- * Загружает лист игрока: комната → кэш браузера → лист старой версии → пустой.
+ * Загружает лист игрока: комната → кэш браузера → пустой.
  * Возвращает { character, inRoom } — inRoom=false значит, что в комнате листа ещё нет.
  */
 export async function loadSheet(playerId) {
@@ -88,26 +86,13 @@ export async function loadSheet(playerId) {
         writeLocal(localSheetKey(playerId), character);
         return { character, inRoom: true };
       } catch (e) {
-        console.warn("[dnd-sheet] лист в комнате повреждён, беру копию из браузера", e);
+        console.warn("[dnd-charlist] лист в комнате повреждён, беру копию из браузера", e);
       }
     }
   }
-  const local = readLocal(localSheetKey(playerId)) ?? (isMe(playerId) ? readLocal(roomKey("character")) : null);
+  const local = readLocal(localSheetKey(playerId));
   if (local) return { character: normalizeCharacter(local), inRoom: false };
-  if (OBR.isAvailable && isMe(playerId)) {
-    try {
-      const meta = await OBR.player.getMetadata();
-      const old = OLD_PLAYER_KEYS.map((k) => meta[k]).find(Boolean);
-      if (old) return { character: normalizeCharacter(old), inRoom: false };
-    } catch (e) {
-      console.warn("[dnd-sheet] не удалось прочитать метаданные игрока", e);
-    }
-  }
   return { character: createCharacter(), inRoom: false };
-}
-
-function isMe(playerId) {
-  return !OBR.isAvailable || playerId === OBR.player.id;
 }
 
 /** Последние данные листа, записанные или прочитанные этим окном, — чтобы не применять своё же эхо. */
@@ -165,18 +150,14 @@ export async function flushSave(playerId) {
   try {
     onResult?.(await writeRoom(playerId, character, playerName));
   } catch (e) {
-    console.warn("[dnd-sheet] не удалось сохранить лист в комнату", e);
+    console.warn("[dnd-charlist] не удалось сохранить лист в комнату", e);
     onResult?.({ ok: false, error: "Не удалось сохранить лист в комнату, копия осталась в браузере" });
   }
 }
 
-/** Переносит лист старой версии в комнату и убирает старые ключи из метаданных игрока. */
-export async function uploadSheet(playerId, character, playerName) {
-  const result = await writeRoom(playerId, character, playerName);
-  if (result.ok && isMe(playerId)) {
-    OBR.player.setMetadata(Object.fromEntries(OLD_PLAYER_KEYS.map((k) => [k, undefined]))).catch(() => {});
-  }
-  return result;
+/** Записывает в комнату лист, который пока есть только в браузере (например, раньше не хватило места). */
+export function uploadSheet(playerId, character, playerName) {
+  return writeRoom(playerId, character, playerName);
 }
 
 /** Удаляет лист из комнаты (только мастер). */
@@ -200,7 +181,7 @@ export function watchSheet(playerId, callback) {
       writeLocal(localSheetKey(playerId), character);
       callback(character);
     } catch (e) {
-      console.warn("[dnd-sheet] не удалось прочитать обновлённый лист", e);
+      console.warn("[dnd-charlist] не удалось прочитать обновлённый лист", e);
     }
   });
 }
@@ -208,11 +189,11 @@ export function watchSheet(playerId, callback) {
 // ---------- Настройки и журнал (только в браузере) ----------
 
 export function loadSettings(defaults) {
-  return { ...defaults, ...(readLocal("dnd-sheet:settings") ?? {}) };
+  return { ...defaults, ...(readLocal("dnd-charlist:settings") ?? {}) };
 }
 
 export function saveSettings(settings) {
-  writeLocal("dnd-sheet:settings", settings);
+  writeLocal("dnd-charlist:settings", settings);
 }
 
 export function loadLog() {

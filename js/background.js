@@ -24,7 +24,7 @@ OBR.onReady(() => {
       const shown = await receiveRoll(data, { myId: OBR.player.id, myRole });
       if (shown && data.playerId !== OBR.player.id && !(await OBR.action.isOpen())) setBadge(unread + 1);
     } catch (e) {
-      console.error("[dnd-sheet] ошибка при показе броска", e);
+      console.error("[dnd-charlist] ошибка при показе броска", e);
     }
   });
 });
