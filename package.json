@@ -1,5 +1,5 @@
 {
-  "name": "dnd-sheet",
+  "name": "dnd-charlist",
   "private": true,
   "type": "module",
   "description": "Лист персонажа D&D 5e — расширение для Owlbear Rodeo",

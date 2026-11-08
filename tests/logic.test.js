@@ -177,7 +177,7 @@ test("manifest.json проходит ограничения Owlbear", async () =
   }
   assert.ok(manifest.description.length <= 128, `description: ${manifest.description.length} > 128 символов`);
   for (const url of [manifest.icon, manifest.action.icon, manifest.action.popover, manifest.background_url]) {
-    assert.match(url, /^https:\/\/maxcrash72\.github\.io\/dnd-sheet\//);
+    assert.match(url, /^https:\/\/maxcrash72\.github\.io\/dnd-charlist\//);
   }
 });
 

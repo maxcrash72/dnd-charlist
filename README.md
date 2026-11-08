@@ -29,7 +29,7 @@
 1. В Owlbear Rodeo откройте профиль → **Extensions** → **Add Extension**.
 2. Вставьте адрес манифеста:
    ```
-   https://maxcrash72.github.io/dnd-sheet/manifest.json
+   https://maxcrash72.github.io/dnd-charlist/manifest.json
    ```
 3. Включите расширение в комнате.
 4. Для 3D-кубиков добавьте так же расширение `https://maxcrash72.github.io/dnd-dice/manifest.json`
